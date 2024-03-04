@@ -19,20 +19,13 @@ my.simple
 
 #assigning the treatment contrasts to plot_abundance
 contrasts(bami.df2$plot_abund) = my.simple
-
-
 richness.tr<-lm(logrich~Block/Plot+plot_abund+AG_biomass+BG_biomass+pH+salinity+Light+plant_rich+pH,
                 data=bami.df2,na.action=na.omit)
 summary(richness.tr)
-
 library(emmeans)
 emmeans(richness.tr, pairwise ~ plot_abund)
 
 ##BACTERIA##
-#############################
-#Test for diversity
-#############################
-#sqrt
 bama.bf<-read.csv(file="Final_bm1_bacteria_noNA_data.CSV")
 bama.bf$plot_abund<-as.factor(bama.bf$plot_abund)
 c<-contr.treatment(4)
@@ -47,34 +40,25 @@ richness.Blm<-lm(log(richness)~Block/Plot+plot_abund+AG_biomass+BG_biomass+plant
                 data=bama.bf)
 summary(richness.Blm)
 
-######################################################
-#anova isolation frequency
-#=========================================================#
 #Test for significance if isolation frequency differences
-#+++++++++++++++++++++++++++++++++++++++++++++++++++++++++#
 comb.d<-read.csv(file="Iso_freq_combined.csv")
 iso_freq<-aov(iso_freq~Type*plot_abund, data=comb.d)
 summary(iso_freq)
 TukeyHSD(iso_freq, conf.level=.95)
-
 
 #t.test woody vs non woody
 bama.df<-read.csv(file="Final_bami_fungi_sppdata.csv")
 mangrove.fun<-bama.df[bama.df$plot_abund=="50% BM-W" | bama.df$plot_abund=="50% BM-WO",]
 t.test(mangrove.fun$logrich~mangrove.fun$plot_abund)
 
-#*******************************************#
 #PERMANOVA
-#3. Test on composition
-#******************************************#
-library(permute)
+#Test on composition
 
+library(permute)
 bami.df2<-read.csv(file="Final_bami_fungi_sppdata.csv")
 bami.df2$plot_abund<-as.factor(bami.df2$plot_abund)
-
 #make species matrix
 sp.cols.rt <- grep("s__", names(bami.df2))
-
 #Square root transformation, Wisconsin double standardization,#this emphasizes the environmental variables
 fun.mat<-vegdist((bami.df2[,sp.cols.rt]), method="bray", binary=FALSE, metaMDS=TRUE, 
                  sqrt.dist=TRUE)
